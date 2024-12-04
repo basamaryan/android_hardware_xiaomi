@@ -17,12 +17,22 @@
 namespace aidl::android::hardware::biometrics::fingerprint {
 
 namespace {
+constexpr int MAX_ENROLLMENTS_PER_USER = 5;
 constexpr char HW_COMPONENT_ID[] = "fingerprintSensor";
 constexpr char HW_VERSION[] = "vendor/model/revision";
 constexpr char FW_VERSION[] = "1.01";
 constexpr char SERIAL_NUMBER[] = "00000001";
 constexpr char SW_COMPONENT_ID[] = "matchingAlgorithm";
 constexpr char SW_VERSION[] = "vendor/version/revision";
+
+struct FingerprintModule {
+    const char* name;
+};
+
+static const FingerprintModule kModules[] = {
+        {"fortsense"},  {"fpc"},         {"fpc_fod"}, {"goodix"},
+        {"goodix_fod"}, {"goodix_fod6"}, {"silead"},  {"syna"},
+};
 }  // namespace
 
 static const uint16_t kVersion = HARDWARE_MODULE_API_VERSION(2, 1);
@@ -34,15 +44,13 @@ Fingerprint::Fingerprint() {
     if (mDevice) {
         ALOGI("fingerprint HAL already opened");
     } else {
-        std::string sensorModulesList = Fingerprint::cfg().get<std::string>("sensor_modules");
-        std::vector<std::string> sensorModules = ::android::base::Split(sensorModulesList, ",");
-        for (const std::string& class_name : sensorModules) {
-            mDevice = openSensorHal(class_name.c_str());
+        for (const auto& module : kModules) {
+            mDevice = openSensorHal(module.name);
             if (!mDevice) {
-                ALOGE("Can't open HAL module, class %s", class_name.c_str());
+                ALOGE("Can't open HAL module, class %s", module.name);
                 continue;
             }
-            ALOGI("Opened fingerprint HAL, class %s", class_name.c_str());
+            ALOGI("Opened fingerprint HAL, class %s", module.name);
             break;
         }
         if (!mDevice) {
@@ -178,14 +186,13 @@ ndk::ScopedAStatus Fingerprint::getSensorProps(std::vector<SensorProps>* out) {
              "" /* serialNumber */, SW_VERSION}};
     auto sensorId = Fingerprint::cfg().get<std::int32_t>("sensor_id");
     auto sensorStrength = Fingerprint::cfg().get<std::int32_t>("sensor_strength");
-    auto maxEnrollments = Fingerprint::cfg().get<std::int32_t>("max_enrollments");
-    auto navigationGuesture = Fingerprint::cfg().get<bool>("navigation_guesture");
+    auto navigationGuesture = Fingerprint::cfg().get<bool>("navigation_gesture");
     auto detectInteraction = Fingerprint::cfg().get<bool>("detect_interaction");
     auto displayTouch = Fingerprint::cfg().get<bool>("display_touch");
     auto controlIllumination = Fingerprint::cfg().get<bool>("control_illumination");
 
     common::CommonProps commonProps = {sensorId, (common::SensorStrength)sensorStrength,
-                                       maxEnrollments, componentInfo};
+                                       MAX_ENROLLMENTS_PER_USER, componentInfo};
 
     SensorLocation sensorLocation = getSensorLocation();
 

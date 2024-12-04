@@ -27,38 +27,25 @@ namespace aidl::android::hardware::biometrics::fingerprint {
     }
 
 CREATE_GETTER_SETTER_WRAPPER(type, OptString)
-CREATE_GETTER_SETTER_WRAPPER(sensor_modules, OptString)
 CREATE_GETTER_SETTER_WRAPPER(sensor_id, OptInt32)
 CREATE_GETTER_SETTER_WRAPPER(sensor_location, OptString)
 CREATE_GETTER_SETTER_WRAPPER(sensor_strength, OptInt32)
-CREATE_GETTER_SETTER_WRAPPER(max_enrollments, OptBool)
-CREATE_GETTER_SETTER_WRAPPER(navigation_guesture, OptBool)
+CREATE_GETTER_SETTER_WRAPPER(navigation_gesture, OptBool)
 CREATE_GETTER_SETTER_WRAPPER(detect_interaction, OptBool)
 CREATE_GETTER_SETTER_WRAPPER(display_touch, OptBool)
 CREATE_GETTER_SETTER_WRAPPER(control_illumination, OptBool)
-CREATE_GETTER_SETTER_WRAPPER(lockout_enable, OptBool)
-CREATE_GETTER_SETTER_WRAPPER(lockout_timed_threshold, OptInt32)
-CREATE_GETTER_SETTER_WRAPPER(lockout_timed_duration, OptInt32)
-CREATE_GETTER_SETTER_WRAPPER(lockout_permanent_threshold, OptInt32)
 
 // Name, Getter, Setter, Parser and default value
 #define NGS(_NAME_) #_NAME_, _NAME_##Getter, _NAME_##Setter
 static Config::Data configData[] = {
         {NGS(type), &Config::parseString, ""},
-        {NGS(sensor_modules), &Config::parseString,
-         "fortsense,fpc,fpc_fod,goodix,goodix_fod,goodix_fod6,silead,syna"},
         {NGS(sensor_id), &Config::parseInt32, "0"},
         {NGS(sensor_location), &Config::parseString, ""},
         {NGS(sensor_strength), &Config::parseInt32, "2"},  // STRONG
-        {NGS(max_enrollments), &Config::parseInt32, "5"},
-        {NGS(navigation_guesture), &Config::parseBool, "false"},
+        {NGS(navigation_gesture), &Config::parseBool, "false"},
         {NGS(detect_interaction), &Config::parseBool, "false"},
         {NGS(display_touch), &Config::parseBool, "false"},
         {NGS(control_illumination), &Config::parseBool, "false"},
-        {NGS(lockout_enable), &Config::parseBool, "true"},
-        {NGS(lockout_timed_threshold), &Config::parseInt32, "5"},
-        {NGS(lockout_timed_duration), &Config::parseInt32, "10000"},
-        {NGS(lockout_permanent_threshold), &Config::parseInt32, "20"},
 };
 
 Config::Data* FingerprintConfig::getConfigData(int* size) {

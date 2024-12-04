@@ -15,37 +15,28 @@ using namespace ::android::fingerprint::xiaomi;
 namespace aidl::android::hardware::biometrics::fingerprint {
 
 void LockoutTracker::reset(bool clearAttemptCounter) {
-    if (clearAttemptCounter) mFailedCount = 0;
+    if (clearAttemptCounter) {
+        mFailedCount = 0;
+    }
     mLockoutTimedStart = 0;
     mCurrentMode = LockoutMode::kNone;
 }
 
 void LockoutTracker::addFailedAttempt() {
-    bool enabled = Fingerprint::cfg().get<bool>("lockout_enable");
-    if (enabled) {
-        mFailedCount++;
-        int32_t lockoutTimedThreshold =
-                Fingerprint::cfg().get<std::int32_t>("lockout_timed_threshold");
-        int32_t lockoutPermanetThreshold =
-                Fingerprint::cfg().get<std::int32_t>("lockout_permanent_threshold");
-        if (mFailedCount >= lockoutPermanetThreshold) {
-            mCurrentMode = LockoutMode::kPermanent;
-        } else if (mFailedCount >= lockoutTimedThreshold) {
-            if (mCurrentMode == LockoutMode::kNone) {
-                mCurrentMode = LockoutMode::kTimed;
-                mLockoutTimedStart = Util::getSystemNanoTime();
-            }
+    mFailedCount++;
+    if (mFailedCount >= LOCKOUT_PERMANENT_THRESHOLD) {
+        mCurrentMode = LockoutMode::kPermanent;
+    } else if (mFailedCount >= LOCKOUT_TIMED_THRESHOLD) {
+        if (mCurrentMode == LockoutMode::kNone) {
+            mCurrentMode = LockoutMode::kTimed;
+            mLockoutTimedStart = Util::getSystemNanoTime();
         }
-    } else {
-        reset(true);
     }
 }
 
 LockoutTracker::LockoutMode LockoutTracker::getMode() {
     if (mCurrentMode == LockoutMode::kTimed) {
-        int32_t lockoutTimedDuration =
-                Fingerprint::cfg().get<std::int32_t>("lockout_timed_duration");
-        if (Util::hasElapsed(mLockoutTimedStart, lockoutTimedDuration)) {
+        if (Util::hasElapsed(mLockoutTimedStart, LOCKOUT_TIMED_DURATION)) {
             mCurrentMode = LockoutMode::kNone;
             mLockoutTimedStart = 0;
         }
@@ -58,11 +49,9 @@ int64_t LockoutTracker::getLockoutTimeLeft() {
     int64_t res = 0;
 
     if (mLockoutTimedStart > 0) {
-        int32_t lockoutTimedDuration =
-                Fingerprint::cfg().get<std::int32_t>("lockout_timed_duration");
         auto now = Util::getSystemNanoTime();
         auto elapsed = (now - mLockoutTimedStart) / 1000000LL;
-        res = lockoutTimedDuration - elapsed;
+        res = LOCKOUT_TIMED_DURATION - elapsed;
         LOG(INFO) << "elapsed=" << elapsed << " now = " << now
                   << " mLockoutTimedStart=" << mLockoutTimedStart << " res=" << res;
     }

@@ -53,8 +53,6 @@ ndk::ScopedAStatus Session::revokeChallenge(int64_t challenge) {
 
 ndk::ScopedAStatus Session::enroll(const HardwareAuthToken& hat,
                                    std::shared_ptr<ICancellationSignal>* out) {
-    ALOGI("enroll");
-
     hw_auth_token_t authToken;
     translate(hat, authToken);
     int error = mDevice->enroll(mDevice, &authToken, mUserId, 60);
@@ -69,8 +67,6 @@ ndk::ScopedAStatus Session::enroll(const HardwareAuthToken& hat,
 
 ndk::ScopedAStatus Session::authenticate(int64_t operationId,
                                          std::shared_ptr<ICancellationSignal>* out) {
-    ALOGI("authenticate");
-
     int error = mDevice->authenticate(mDevice, operationId, mUserId);
     if (error) {
         ALOGE("authenticate failed: %d", error);
@@ -82,7 +78,6 @@ ndk::ScopedAStatus Session::authenticate(int64_t operationId,
 }
 
 ndk::ScopedAStatus Session::detectInteraction(std::shared_ptr<ICancellationSignal>* out) {
-    ALOGI("detectInteraction");
     ALOGD("Detect interaction is not supported");
     mCb->onError(Error::UNABLE_TO_PROCESS, 0 /* vendorCode */);
 
@@ -91,8 +86,6 @@ ndk::ScopedAStatus Session::detectInteraction(std::shared_ptr<ICancellationSigna
 }
 
 ndk::ScopedAStatus Session::enumerateEnrollments() {
-    ALOGI("enumerateEnrollments");
-
     int error = mDevice->enumerate(mDevice);
     if (error) {
         ALOGE("enumerate failed: %d", error);
@@ -131,8 +124,6 @@ ndk::ScopedAStatus Session::invalidateAuthenticatorId() {
 }
 
 ndk::ScopedAStatus Session::resetLockout(const HardwareAuthToken& /*hat*/) {
-    ALOGI("resetLockout");
-
     clearLockout(true);
     if (mIsLockoutTimerStarted) mIsLockoutTimerAborted = true;
 
@@ -141,8 +132,6 @@ ndk::ScopedAStatus Session::resetLockout(const HardwareAuthToken& /*hat*/) {
 
 ndk::ScopedAStatus Session::onPointerDown(int32_t /*pointerId*/, int32_t x, int32_t y, float minor,
                                           float major) {
-    ALOGI("onPointerDown");
-
     if (mUdfpsHandler) {
         mUdfpsHandler->onFingerDown(x, y, minor, major);
     }
@@ -152,8 +141,6 @@ ndk::ScopedAStatus Session::onPointerDown(int32_t /*pointerId*/, int32_t x, int3
 }
 
 ndk::ScopedAStatus Session::onPointerUp(int32_t /*pointerId*/) {
-    ALOGI("onPointerUp");
-
     if (mUdfpsHandler) {
         mUdfpsHandler->onFingerUp();
     }
@@ -162,8 +149,6 @@ ndk::ScopedAStatus Session::onPointerUp(int32_t /*pointerId*/) {
 }
 
 ndk::ScopedAStatus Session::onUiReady() {
-    ALOGI("onUiReady");
-
     // TODO: stub
 
     return ndk::ScopedAStatus::ok();
@@ -208,7 +193,6 @@ ndk::ScopedAStatus Session::setIgnoreDisplayTouches(bool /*shouldIgnore*/) {
 }
 
 ndk::ScopedAStatus Session::cancel() {
-    ALOGI("cancel");
     if (mUdfpsHandler) {
         mUdfpsHandler->cancel();
     }
@@ -225,7 +209,6 @@ ndk::ScopedAStatus Session::cancel() {
 }
 
 ndk::ScopedAStatus Session::close() {
-    ALOGI("close");
     mClosed = true;
     mCb->onSessionClosed();
     AIBinder_DeathRecipient_delete(mDeathRecipient);
@@ -298,8 +281,8 @@ AcquiredInfo Session::VendorAcquiredFilter(int32_t info, int32_t* vendorCode) {
                 return AcquiredInfo::VENDOR;
             }
     }
-    ALOGE("Unknown acquiredmsg from fingerprint vendor library: %d", info);
-    return AcquiredInfo::INSUFFICIENT;
+    ALOGE("Unknown acquired message from fingerprint vendor library: %d", info);
+    return AcquiredInfo::UNKNOWN;
 }
 
 bool Session::checkSensorLockout() {

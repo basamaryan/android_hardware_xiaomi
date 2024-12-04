@@ -11,6 +11,10 @@
 #include <stdint.h>
 #include <string>
 
+#define LOCKOUT_TIMED_THRESHOLD 5
+#define LOCKOUT_TIMED_DURATION 10000
+#define LOCKOUT_PERMANENT_THRESHOLD 20
+
 namespace aidl::android::hardware::biometrics::fingerprint {
 
 class LockoutTracker {

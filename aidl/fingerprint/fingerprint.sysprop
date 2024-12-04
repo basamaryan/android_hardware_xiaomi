@@ -13,16 +13,6 @@ prop {
     api_name: "type"
 }
 
-# sensor modules (default: fortsense,fpc,fpc_fod,goodix,goodix_fod,goodix_fod6,silead,syna)
-#    module1,module2
-prop {
-    prop_name: "persist.vendor.fingerprint.sensor_modules"
-    type: String
-    scope: Internal
-    access: ReadWrite
-    api_name: "sensor_modules"
-}
-
 # sensor location
 #    <x>|<y>|<radius> in pixel
 prop {
@@ -43,7 +33,7 @@ prop {
 }
 
 # sensor strength (default: 2)
-# [0=CONVENECE, 1=WEAK, 2=STRONG]
+# [0=CONVENIENCE, 1=WEAK, 2=STRONG]
 prop {
     prop_name: "persist.vendor.fingerprint.sensor_strength"
     type: Integer
@@ -52,23 +42,13 @@ prop {
     api_name: "sensor_strength"
 }
 
-# max enrollments per user (default: 5)
-#
-prop {
-    prop_name: "persist.vendor.fingerprint.max_enrollments"
-    type: Integer
-    scope: Internal
-    access: ReadWrite
-    api_name: "max_enrollments"
-}
-
 # whether support navigation guestures (default: false)
 prop {
-    prop_name: "persist.vendor.fingerprint.navigation_guesture"
+    prop_name: "persist.vendor.fingerprint.navigation_gesture"
     type: Boolean
     scope: Internal
     access: ReadWrite
-    api_name: "navigation_guesture"
+    api_name: "navigation_gesture"
 }
 
 # whether support detect interaction (default: false)
@@ -96,40 +76,4 @@ prop {
     scope: Internal
     access: ReadWrite
     api_name: "control_illumination"
-}
-
-# whether support lockout based on the failed auth attempts (default: true)
-prop {
-    prop_name: "persist.vendor.fingerprint.lockout_enable"
-    type: Boolean
-    scope: Internal
-    access: ReadWrite
-    api_name: "lockout_enable"
-}
-
-# temporarily lockout threshold in number of consecutive failed auth attempts (default: 5)
-prop {
-    prop_name: "persist.vendor.fingerprint.lockout_timed_threshold"
-    type: Integer
-    scope: Internal
-    access: ReadWrite
-    api_name: "lockout_timed_threshold"
-}
-
-# temporary lockout duration in ms (default: 10000ms)
-prop {
-    prop_name: "persist.vendor.fingerprint.lockout_timed_duration"
-    type: Integer
-    scope: Internal
-    access: ReadWrite
-    api_name: "lockout_timed_duration"
-}
-
-# permanently lockout threshold  in number of consecutive failed auth attempts (default: 20)
-prop {
-    prop_name: "persist.vendor.fingerprint.lockout_permanent_threshold"
-    type: Integer
-    scope: Internal
-    access: ReadWrite
-    api_name: "lockout_permanent_threshold"
 }
