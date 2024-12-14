@@ -67,6 +67,7 @@ ndk::ScopedAStatus Session::enroll(const HardwareAuthToken& hat,
 
 ndk::ScopedAStatus Session::authenticate(int64_t operationId,
                                          std::shared_ptr<ICancellationSignal>* out) {
+    checkSensorLockout();
     int error = mDevice->authenticate(mDevice, operationId, mUserId);
     if (error) {
         ALOGE("authenticate failed: %d", error);
@@ -110,9 +111,6 @@ ndk::ScopedAStatus Session::getAuthenticatorId() {
     uint64_t auth_id = mDevice->get_authenticator_id(mDevice);
     ALOGI("getAuthenticatorId: %ld", auth_id);
     mCb->onAuthenticatorIdRetrieved(auth_id);
-    if (mUdfpsHandler) {
-        mUdfpsHandler->onFingerUp();
-    }
     return ndk::ScopedAStatus::ok();
 }
 
@@ -135,8 +133,6 @@ ndk::ScopedAStatus Session::onPointerDown(int32_t /*pointerId*/, int32_t x, int3
     if (mUdfpsHandler) {
         mUdfpsHandler->onFingerDown(x, y, minor, major);
     }
-    checkSensorLockout();
-
     return ndk::ScopedAStatus::ok();
 }
 
@@ -375,9 +371,6 @@ void Session::notify(const fingerprint_msg_t* msg) {
                 mCb->onAuthenticationFailed();
                 mLockoutTracker.addFailedAttempt();
                 checkSensorLockout();
-            }
-            if (mUdfpsHandler) {
-                mUdfpsHandler->onFingerUp();
             }
         } break;
         case FINGERPRINT_TEMPLATE_ENUMERATING: {
